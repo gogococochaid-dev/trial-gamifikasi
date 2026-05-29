@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>The Trust Balance: Swipe for Impact</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0F0C29; /* Deep Space */
+            --bg-gradient: linear-gradient(135deg, #0F0C29, #302B63, #24243E);
+            --primary: #BC13FE; /* Neon Purple */
+            --secondary: #2400FF; /* Electric Blue */
+            --accent: #C6FF00; /* Electric Lime */
+            --success: #00FF9D; /* Cyber Green */
+            --danger: #FF0055; /* Cyber Red */
+            --text-light: #F0F0F0;
+            --border-width: 3px;
+            --card-shadow: 0px 10px 0px rgba(0,0,0,0.5);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        .cyber-box {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: var(--border-width) solid var(--primary);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 5px 5px 0px var(--secondary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cyber-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: skewX(-25deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            100% { left: 200%; }
+        }
+
+        .btn-cyber {
+            font-family: 'Bangers', cursive;
+            font-size: 1.6rem;
+            letter-spacing: 2px;
+            padding: 15px 30px;
+            background: var(--accent);
+            color: var(--bg-dark);
+            border: var(--border-width) solid var(--bg-dark);
+            border-radius: 4px;
+            box-shadow: 6px 6px 0px var(--primary);
+            cursor: pointer;
+            transition: 0.2s;
+            text-transform: uppercase;
+            width: 100%;
+        }
+
+        .btn-cyber:active {
+            transform: translate(3px, 3px);
+            box-shadow: 2px 2px 0px var(--primary);
+        }
+
+        #app-container {
+            width: 100%;
+            max-width: 450px;
+            height: 100vh;
+            max-height: 850px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 4px solid var(--primary);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+            box-shadow: 0 0 30px rgba(188, 19, 254, 0.3);
+        }
+
+        .screen { display: none; flex-direction: column; padding: 25px; min-height: 100%; }
+        .screen.active { display: flex; }
+
+        .logo-title {
+            font-size: 3.5rem;
+            text-align: center;
+            color: var(--accent);
+            text-shadow: 4px 4px 0 var(--primary);
+            line-height: 1;
+            margin-bottom: 30px;
+        }
+
+        .input-group { margin-bottom: 20px; }
+        .input-group label { font-weight: bold; color: var(--accent); display: block; margin-bottom: 8px; }
+        .input-group input {
+            width: 100%;
+            padding: 14px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid var(--primary);
+            border-radius: 4px;
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: var(--primary);
+            padding: 12px;
+            border-radius: 4px;
+        }
+
+        .progress-bar {
+            flex-grow: 1;
+            height: 15px;
+            background: #1a1a1a;
+            border: 2px solid white;
+            margin: 0 15px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            width: 50%;
+            transition: width 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 15px var(--accent);
+        }
+
+        .card-container {
+            flex-grow: 1;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 320px;
+        }
+
+        .swipe-card {
+            background: #fff;
+            color: var(--bg-dark);
+            border: 5px solid var(--bg-dark);
+            border-radius: 16px;
+            width: 90%;
+            height: 280px;
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 10px 10px 0px var(--primary);
+            transition: transform 0.3s, opacity 0.3s;
+        }
+
+        .card-content { font-size: 1.2rem; font-weight: 700; color: #1a1a1a; }
+        
+        .controls { display: flex; gap: 15px; margin-top: 25px; }
+        .btn-swipe { flex: 1; }
+        .btn-tarikan { background: var(--danger); color: white; border-color: white; }
+        .btn-setoran { background: var(--success); color: var(--bg-dark); border-color: var(--bg-dark); }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 12, 41, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--bg-dark);
+            border: 4px solid var(--accent);
+            padding: 30px;
+            text-align: center;
+            border-radius: 12px;
+        }
+
+        .status-badge {
+            background: var(--primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .debrief-list {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .debrief-item {
+            background: rgba(255,255,255,0.05);
+            margin-bottom: 10px;
+            padding: 15px;
+            border-left: 5px solid var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    
+    <!-- 1. Gateway Screen -->
+    <div id="screen-login" class="screen active">
+        <h1 class="logo-title">TRUST<br>BALANCE</h1>
+        
+        <div class="cyber-box">
+            <h3 style="color: var(--accent); margin-bottom: 20px;">PROJECT MANAGER AUTH</h3>
+            <div class="input-group">
+                <label>NAMA PANGGILAN</label>
+                <input type="text" id="playerName" placeholder="Enter Nickname...">
+            </div>
+            <div class="input-group">
+                <label>NIK KARYAWAN</label>
+                <input type="number" id="playerNIK" placeholder="Enter ID Number...">
+            </div>
+            <button class="btn-cyber" onclick="startGameplay()">INITIALIZE LOGIN</button>
+        </div>
+
+        <div style="margin-top: auto; text-align: center; padding: 20px; font-size: 0.8rem; letter-spacing: 2px;">
+            EDUCATION & TRAINING DEPT. &copy; 2026
+        </div>
+    </div>
+
+    <!-- 2. Mission Briefing -->
+    <div id="screen-briefing" class="screen">
+        <h2 style="font-size: 2.5rem; color: var(--accent); text-align: center;">MISSION BRIEFING</h2>
+        
+        <div class="cyber-box" style="margin: 20px 0; background: var(--secondary); color: white;">
+            <h3 style="margin-bottom: 10px;">🔴 THE WHY?</h3>
+            <p>Di dunia kerja, <strong>Skill Teknis</strong> hanya membawa Anda ke pintu masuk. <strong>Trust Balance</strong> (Saldo Kepercayaan) yang membawa Anda ke puncak.</p>
+        </div>
+
+        <div class="cyber-box" style="margin-bottom: 20px;">
+            <h3 style="color: var(--accent);">OPERATIONAL RULES:</h3>
+            <p style="margin-top:10px;">Geser kartu ke <strong>KANAN</strong> untuk tindakan yang membangun hubungan (Setoran). Geser <strong>KIRI</strong> untuk tindakan yang merusak (Tarikan).</p>
+        </div>
+
+        <button class="btn-cyber" onclick="startCoreGame()">START MISSION</button>
+    </div>
+
+    <!-- 3. Core Game -->
+    <div id="screen-game" class="screen">
+        <div class="top-bar">
+            <div style="font-family: 'Bangers'; font-size: 1.4rem;">TRUST: <span id="score-text">50</span>%</div>
+            <div class="progress-bar">
+                <div id="progress-fill" class="progress-fill"></div>
+            </div>
+            <button class="mute-btn" id="mute-btn" onclick="toggleMute()" style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;">🔊</button>
+        </div>
+
+        <div style="background:rgba(255,255,255,0.1); padding:10px; border-radius:4px; font-size:0.9rem; margin-bottom:15px; border-left:4px solid var(--accent);">
+            <strong>ADVICE:</strong> <span id="hint-text">Berikan perhatian pada hal kecil.</span>
+        </div>
+
+        <div class="card-container" id="card-area">
+            <!-- Cards injected here -->
+        </div>
+
+        <div class="controls">
+            <button class="btn-cyber btn-swipe btn-tarikan" onclick="triggerSwipe('left')">TARIKAN</button>
+            <button class="btn-cyber btn-swipe btn-setoran" onclick="triggerSwipe('right')">SETORAN</button>
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div class="modal-overlay" id="feedback-modal">
+        <div class="modal-content">
+            <div id="feedback-icon" style="font-size: 4rem;"></div>
+            <h2 id="feedback-title" style="font-family: 'Bangers'; font-size: 2.5rem; margin: 15px 0;"></h2>
+            <p id="feedback-desc" style="margin-bottom: 25px; line-height: 1.5;"></p>
+            <button class="btn-cyber" onclick="nextCard()">NEXT DAY >></button>
+        </div>
+    </div>
+
+    <!-- Badge Popup -->
+    <div class="modal-overlay" id="badge-popup">
+        <div class="modal-content" style="border-color: var(--primary);">
+            <div style="font-size: 5rem; filter: drop-shadow(0 0 10px var(--primary));">🏆</div>
+            <h2 style="font-family: 'Bangers'; color: var(--accent); font-size: 2rem;">ACHIEVEMENT UNLOCKED</h2>
+            <h3 id="badge-title" style="margin: 10px 0;"></h3>
+            <p id="badge-desc" style="font-size: 0.9rem; opacity: 0.8;"></p>
+            <button class="btn-cyber" style="margin-top: 20px;" onclick="closeBadge()">CONTINUE</button>
+        </div>
+    </div>
+
+    <!-- 4. Debrief Screen -->
+    <div id="screen-result" class="screen">
+        <div class="cyber-box" style="text-align: center; margin-bottom: 20px;">
+            <h2 id="final-greeting">MISSION COMPLETE</h2>
+            <div style="font-size: 4rem; font-family: 'Bangers'; color: var(--accent); margin: 10px 0;">
+                <span id="final-score">0</span>%
+            </div>
+            <h3 id="final-badge-display" style="color: var(--primary);"></h3>
+        </div>
+
+        <h3 style="color: var(--accent);">INTERACTION LOG:</h3>
+        <div class="debrief-list" id="debrief-list"></div>
+
+        <div id="reinforcement-box" style="margin-top: 20px; padding: 15px; background: var(--secondary); border-radius: 8px; font-weight: bold;"></div>
+
+        <button class="btn-cyber" style="margin-top: 20px;" onclick="location.reload()">RETRY MISSION</button>
+    </div>
+
+</div>
+
+<script>
+    let audioCtx = null;
+    let isMuted = false;
+    let bgmInterval = null;
+
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        if (!bgmInterval && !isMuted) startSynthLoop();
+    }
+
+    function playTone(freq, type, duration, vol) {
+        if (!audioCtx || isMuted) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    }
+
+    // Prosedural Synthwave Loop
+    const melody = [261.63, 293.66, 329.63, 349.23, 392.00, 329.63, 293.66, 261.63];
+    let noteCounter = 0;
+    function startSynthLoop() {
+        bgmInterval = setInterval(() => {
+            if (isMuted) return;
+            // Bass
+            playTone(130.81, 'sawtooth', 0.8, 0.02);
+            // Melody
+            if (noteCounter % 2 === 0) {
+                playTone(melody[Math.floor(noteCounter/2) % melody.length], 'triangle', 0.4, 0.03);
+            }
+            noteCounter++;
+        }, 250);
+    }
+
+    function toggleMute() {
+        isMuted = !isMuted;
+        document.getElementById('mute-btn').innerText = isMuted ? '🔇' : '🔊';
+        if (isMuted) { clearInterval(bgmInterval); bgmInterval = null; }
+        else { startSynthLoop(); }
+    }
+
+    const questions = [
+        { text: "Mengucapkan 'Terima Kasih' secara tulus di grup WhatsApp atas bantuan kecil tim.", type: "Setoran", feedback: "Menghargai hal kecil adalah pondasi kepercayaan." },
+        { text: "Menyalahkan anggota tim di depan klien saat terjadi keterlambatan jadwal.", type: "Tarikan", feedback: "Menyalahkan orang lain di depan publik menghancurkan rasa aman psikologis." },
+        { text: "Mendengarkan keluh kesah anggota tim tanpa langsung memberikan instruksi atau menasehati.", type: "Setoran", feedback: "Berusaha mengerti sebelum dimengerti adalah setoran besar." },
+        { text: "Meminta maaf karena Anda lupa membalas email penting dari klien sejak kemarin.", type: "Setoran", feedback: "Mengakui kesalahan dengan tulus memperbaiki saldo yang sempat turun." },
+        { text: "Mengambil semua kredit keberhasilan proyek tanpa menyebutkan kontribusi tim.", type: "Tarikan", feedback: "Pencurian kredit kerja adalah cara tercepat kehilangan loyalitas tim." },
+        { text: "Memberikan instruksi yang ambigu tanpa kriteria keberhasilan yang jelas.", type: "Tarikan", feedback: "Ketidakjelasan ekspektasi menciptakan frustrasi dan ketidakpercayaan." },
+        { text: "Membela anggota tim yang sedang tidak hadir saat dia dikritik secara tidak adil oleh tim lain.", type: "Setoran", feedback: "Loyalitas pada orang yang tidak hadir membangun integritas Anda." },
+        { text: "Menjanjikan kenaikan gaji kepada tim meskipun Anda tahu anggaran perusahaan sedang dibekukan.", type: "Tarikan", feedback: "Memberikan janji palsu adalah pengkhianatan saldo emosional." },
+        { text: "Secara sadar bertanya tentang hobi atau kabar keluarga tim sebelum mulai rapat.", type: "Setoran", feedback: "Membangun hubungan antar manusia di luar status pekerjaan." },
+        { text: "Selalu mengecek (micromanage) setiap detail kecil pekerjaan tim karena Anda merasa mereka tidak kompeten.", type: "Tarikan", feedback: "Micromanagement yang berlebihan menunjukkan kurangnya rasa percaya pada kompetensi orang lain." }
+    ];
+
+    let player = { name: '', nik: '' };
+    let score = 50;
+    let currentIdx = 0;
+    let userAnswers = [];
+    let badgeEarned = false;
+
+    function startGameplay() {
+        const n = document.getElementById('playerName').value.trim();
+        const nik = document.getElementById('playerNIK').value.trim();
+        if(!n || !nik) return;
+        player.name = n;
+        player.nik = nik;
+        showScreen('screen-briefing');
+    }
+
+    function startCoreGame() {
+        initAudio();
+        showScreen('screen-game');
+        renderCard();
+        updateUI();
+    }
+
+    function renderCard() {
+        const area = document.getElementById('card-area');
+        area.innerHTML = '';
+
+        if(score <= 0) { endGame(false); return; }
+        if(currentIdx >= questions.length) { endGame(true); return; }
+
+        if(currentIdx === 5 && !badgeEarned) {
+            showBadge("RELATIONSHIP ROOKIE", "Anda berhasil bertahan melewati 5 hari penuh tantangan!");
+            badgeEarned = true;
+            return;
+        }
+
+        const q = questions[currentIdx];
+        const card = document.createElement('div');
+        card.className = 'swipe-card';
+        card.innerHTML = `
+            <div style="position:absolute; top:10px; right:10px; font-weight:bold; font-size:0.8rem;">DAY ${currentIdx+1}</div>
+            <div class="card-content">"${q.text}"</div>
+            <div style="margin-top:20px; font-size:0.7rem; color:#666;">SWIPE OR CLICK BUTTONS</div>
+        `;
+        area.appendChild(card);
+        initSwipe(card);
+    }
+
+    function initSwipe(card) {
+        let startX = 0;
+        card.ontouchstart = (e) => { startX = e.touches[0].clientX; card.style.transition = 'none'; };
+        card.ontouchmove = (e) => {
+            let diff = e.touches[0].clientX - startX;
+            card.style.transform = `translateX(${diff}px) rotate(${diff/15}deg)`;
+        };
+        card.ontouchend = (e) => {
+            let diff = e.changedTouches[0].clientX - startX;
+            if(Math.abs(diff) > 100) triggerSwipe(diff > 0 ? 'right' : 'left');
+            else { card.style.transition = '0.3s'; card.style.transform = 'none'; }
+        };
+    }
+
+    function triggerSwipe(dir) {
+        const q = questions[currentIdx];
+        const choice = dir === 'right' ? 'Setoran' : 'Tarikan';
+        const isCorrect = (choice === q.type);
+        
+        userAnswers.push({ q: q.text, correct: isCorrect, real: q.type, feedback: q.feedback });
+
+        if(isCorrect) {
+            score += 10;
+            playTone(600, 'sine', 0.1, 0.1); setTimeout(()=>playTone(800, 'sine', 0.2, 0.1), 100);
+            showFeedback(true, q.type, q.feedback);
+        } else {
+            score -= 25;
+            playTone(300, 'sawtooth', 0.3, 0.1);
+            showFeedback(false, q.type, q.feedback);
+        }
+
+        if(score > 100) score = 100;
+        updateUI();
+    }
+
+    function showFeedback(isCorrect, type, msg) {
+        const modal = document.getElementById('feedback-modal');
+        document.getElementById('feedback-icon').innerText = isCorrect ? '✨' : '🔥';
+        document.getElementById('feedback-title').innerText = isCorrect ? 'SYNC SUCCESS!' : 'CONNECTION ERROR!';
+        document.getElementById('feedback-title').style.color = isCorrect ? 'var(--success)' : 'var(--danger)';
+        document.getElementById('feedback-desc').innerHTML = `Tindakan ini adalah <strong>${type}</strong>.<br><br>${msg}`;
+        modal.style.display = 'flex';
+    }
+
+    function nextCard() {
+        document.getElementById('feedback-modal').style.display = 'none';
+        currentIdx++;
+        renderCard();
+    }
+
+    function showBadge(t, d) {
+        document.getElementById('badge-title').innerText = t;
+        document.getElementById('badge-desc').innerText = d;
+        document.getElementById('badge-popup').style.display = 'flex';
+        playTone(523, 'square', 0.1, 0.05); setTimeout(()=>playTone(659, 'square', 0.1, 0.05), 100); setTimeout(()=>playTone(783, 'square', 0.3, 0.05), 200);
+    }
+
+    function closeBadge() { document.getElementById('badge-popup').style.display = 'none'; renderCard(); }
+
+    function updateUI() {
+        const s = Math.max(0, score);
+        document.getElementById('score-text').innerText = s;
+        document.getElementById('progress-fill').style.width = s + '%';
+        const hints = ["Dengar lebih banyak.", "Integritas itu mahal.", "Klien butuh kejujuran.", "Tim butuh apresiasi."];
+        document.getElementById('hint-text').innerText = hints[currentIdx % hints.length];
+    }
+
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function endGame(win) {
+        showScreen('screen-result');
+        document.getElementById('final-score').innerText = Math.max(0, score);
+        const list = document.getElementById('debrief-list');
+        list.innerHTML = '';
+        userAnswers.forEach((ans, i) => {
+            list.innerHTML += `
+                <div class="debrief-item">
+                    <span class="status-badge" style="background:${ans.correct?'var(--success)':'var(--danger)'}">
+                        ${ans.correct?'TEPAT':'KELIRU'}
+                    </span>
+                    <p style="margin-top:10px; font-size:0.9rem;">"${ans.q}"</p>
+                    <p style="font-size:0.8rem; color:var(--accent); margin-top:5px;">💡 ${ans.feedback}</p>
+                </div>
+            `;
+        });
+
+        const rBox = document.getElementById('reinforcement-box');
+        if(score >= 80) {
+            rBox.innerHTML = "🏆 MASTER OF RELATIONS! Stakeholder sangat mempercayai kepemimpinan Anda.";
+            document.getElementById('final-badge-display').innerText = "BADGE: TRUST ARCHITECT";
+        } else if (score > 0) {
+            rBox.innerHTML = "💪 KERJA BAGUS! Anda bertahan, tapi perbanyak 'Setoran' untuk rasa aman tim yang lebih stabil.";
+        } else {
+            rBox.innerHTML = "⚠️ BANKRUPT! Kepercayaan hancur. Saatnya mengevaluasi gaya komunikasi Anda.";
+        }
+    }
+</script>
+</body>
+</html>
